@@ -42,6 +42,10 @@ from transformers.modeling_utils import (
     find_pruneable_heads_and_indices,
     prune_linear_layer,
 )
+try:
+    from transformers.generation import GenerationMixin
+except ImportError:
+    from transformers.generation_utils import GenerationMixin
 from transformers.utils import logging
 from transformers.models.bert.configuration_bert import BertConfig
 
@@ -808,10 +812,11 @@ class BertModel(BertPreTrainedModel):
 
 
 
-class BertLMHeadModel(BertPreTrainedModel):
+class BertLMHeadModel(BertPreTrainedModel, GenerationMixin):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
     _keys_to_ignore_on_load_missing = [r"position_ids", r"predictions.decoder.bias"]
+    main_input_name = "input_ids"
 
     def __init__(self, config):
         super().__init__(config)

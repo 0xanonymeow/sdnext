@@ -353,8 +353,11 @@ class ResStatus(BaseModel):
 
 class ReqInterrogate(BaseModel):
     image: str = Field(default="", title="Image", description="Image to work on, must be a Base64 string containing the image's data.")
+    model: str = Field(default="clip", title="Model", description="The interrogate model to use (clip, deepdanbooru, or specific CLIP model name).")
     clip_model: str = Field(default="", title="CLiP Model", description="The interrogate model used.")
     blip_model: str = Field(default="", title="BLiP Model", description="The interrogate model used.")
+    mode: Optional[str] = Field(default="best", title="Mode", description="The mode for CLIP interrogation.")
+    analyze: Optional[bool] = Field(default=False, title="Analyze", description="Whether to analyze the image.")
 
 InterrogateRequest = ReqInterrogate # alias for backwards compatibility
 

@@ -181,7 +181,18 @@ class InterrogateModels:
         with devices.inference_context():
             min_length = min(shared.opts.interrogate_clip_min_length, shared.opts.interrogate_clip_max_length)
             max_length = max(shared.opts.interrogate_clip_min_length, shared.opts.interrogate_clip_max_length)
-            caption = self.blip_model.generate(gpu_image, sample=False, num_beams=shared.opts.interrogate_clip_num_beams, min_length=min_length, max_length=max_length)
+            # Check if the model has the generate method
+            if hasattr(self.blip_model, 'generate'):
+                caption = self.blip_model.generate(gpu_image, sample=False, num_beams=shared.opts.interrogate_clip_num_beams, min_length=min_length, max_length=max_length)
+            else:
+                # Fallback: try to get the text decoder's generate method
+                shared.log.warning(f"BLIP model doesn't have generate method. Model type: {type(self.blip_model)}")
+                if hasattr(self.blip_model, 'text_decoder') and hasattr(self.blip_model.text_decoder, 'generate'):
+                    # This won't work properly but at least provides better error info
+                    shared.log.warning("BLIP model structure has changed. Caption generation may fail.")
+                    return ["BLIP model incompatibility - unable to generate caption"]
+                else:
+                    return ["BLIP model error - no generate method found"]
         return caption[0]
 
     def interrogate(self, image):
